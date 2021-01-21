@@ -1,8 +1,6 @@
 package com.bkrivetskyi;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
@@ -13,7 +11,8 @@ public class Main {
 
     public static void main(String[] args) {
        // new Main().count();
-        new Main().singleton();
+       // new Main().singleton();
+        new Main().helloWorld();
     }
 
     public void count() {
@@ -68,5 +67,41 @@ public class Main {
                 e.printStackTrace();
             }
             executor.shutdown();
+        }
+
+        public void helloWorld() {
+            HelloWorld helloWorld = new HelloWorld();
+
+            CountDownLatch startSignal = new CountDownLatch(1);
+
+            ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
+
+            Runnable task = new Runnable() {
+                @Override
+                public void run() {
+                    executor.execute(() -> {
+                        try {
+                            startSignal.await();
+                            helloWorld.hello();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                    executor.execute(() -> {
+                        try {
+                            startSignal.await();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+            };
+
+            ScheduledFuture<?> result = executor.scheduleAtFixedRate(task, 0, 10, TimeUnit.SECONDS);
+            executor.schedule(() -> {
+                result.cancel(true);
+                executor.shutdown();
+            }, 60, TimeUnit.SECONDS);
         }
 }
