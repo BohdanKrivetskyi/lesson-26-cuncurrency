@@ -8,18 +8,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
 
-    private static final int MAX_CAUNT = 3000;
+    private static final int MAX_CAUNT = 30000;
     private int countInt = 0;
     private AtomicInteger countAtomic = new AtomicInteger(0);
 
     public static void main(String[] args) {
-
+        new Main().count();
 
     }
 
     public void count() {
 
-        ExecutorService executor = Executors.newFixedThreadPool(300);
+        ExecutorService executor = Executors.newFixedThreadPool(200);
         int countExpect = (int) (Math.random() * MAX_CAUNT + 2000);
 
         CountDownLatch doneSignal = new CountDownLatch(countExpect);
@@ -47,4 +47,6 @@ public class Main {
         System.out.println("Counter int: " + countInt);
         System.out.println("Counter atomic: " + countAtomic);
     }
+
+
 }
