@@ -13,8 +13,8 @@ public class Main {
     private AtomicInteger countAtomic = new AtomicInteger(0);
 
     public static void main(String[] args) {
-        new Main().count();
-
+       // new Main().count();
+        new Main().singleton();
     }
 
     public void count() {
@@ -48,5 +48,26 @@ public class Main {
         System.out.println("Counter atomic: " + countAtomic);
     }
 
+        public void singleton() {
+            CountDownLatch doneSignal = new CountDownLatch(2000);
+            ExecutorService executor = Executors.newFixedThreadPool(2000);
 
+            final Runnable task = new Runnable() {
+                @Override
+                public void run() {
+                    Singleton.getInstance();
+                    SingletonSynchron.getInstance();
+                    doneSignal.countDown();
+                }
+            };
+            for (int i = 0; i < 2000; i++) {
+                executor.submit(task);
+            }
+            try {
+                doneSignal.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            executor.shutdown();
+        }
 }
